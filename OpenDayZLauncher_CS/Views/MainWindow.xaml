@@ -1,0 +1,95 @@
+<Window x:Class="OpenDayZLauncher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:OpenDayZLauncher.ViewModels"
+        mc:Ignorable="d"
+        Title="OpenDayZ Launcher" Height="700" Width="1100"
+        Background="Black" Foreground="White">
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" BorderBrush="#222" BorderThickness="0,0,1,0">
+            <StackPanel Padding="20">
+                <TextBlock Text="OPENDAYZ" FontWeight="Bold" FontSize="20" Margin="0,0,0,30"/>
+                <Button Content="Игровые Серверы" Background="#111" Foreground="White" BorderThickness="0" Padding="10" Margin="0,5"/>
+                <Button Content="Настройки" Background="Transparent" Foreground="#888" BorderThickness="0" Padding="10" Margin="0,5"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Server List -->
+        <Border Grid.Column="1" BorderBrush="#222" BorderThickness="0,0,1,0" Background="#050505">
+            <Grid Padding="15">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Список Серверов" FontWeight="Bold" Margin="0,0,0,10"/>
+                <TextBox Grid.Row="1" Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                         Background="#111" Foreground="White" BorderBrush="#333" Padding="8" Margin="0,0,0,15"/>
+
+                <ListBox Grid.Row="2" ItemsSource="{Binding DisplayedServers}" SelectedItem="{Binding SelectedServer}"
+                         Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#111" BorderThickness="0,0,0,1" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                        <TextBlock Text="{Binding Map}" Foreground="#666" FontSize="10" Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding Players}" Foreground="#AAA" FontSize="10"/>
+                                        <TextBlock Text="/" Foreground="#AAA" FontSize="10"/>
+                                        <TextBlock Text="{Binding MaxPlayers}" Foreground="#AAA" FontSize="10"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+
+        <!-- Details -->
+        <Grid Grid.Column="2" Padding="40" Background="#080808">
+            <StackPanel Visibility="{Binding SelectedServer, Converter={StaticResource NullToVisibilityConverter}, FallbackValue=Hidden}">
+                <TextBlock Text="{Binding SelectedServer.Name}" FontSize="24" FontWeight="Bold" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedServer.Address}" Foreground="#666" Margin="0,5,0,20"/>
+
+                <Border BorderBrush="#222" BorderThickness="0,1" Padding="0,15" Margin="0,0,0,20">
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="ТЕКУЩИЙ ОНЛАЙН" FontSize="10" Foreground="#555"/>
+                            <TextBlock Text="{Binding SelectedServer.Players}" FontSize="18" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <TextBlock Text="ТРЕБУЕМЫЕ МОДЫ" FontSize="10" Foreground="#555" Margin="0,0,0,10"/>
+                <ListBox ItemsSource="{Binding SelectedServer.Mods}" Background="Transparent" BorderThickness="0" MaxHeight="200">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" Foreground="#CCC" Margin="0,2"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Button Content="ПОДКЛЮЧИТЬСЯ К СЕРВЕРУ" Command="{Binding JoinCommand}"
+                        Background="White" Foreground="Black" FontWeight="Bold" Padding="20" Margin="0,30,0,0"/>
+            </StackPanel>
+
+            <TextBlock Text="Выберите сервер из списка" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#444"
+                       Visibility="{Binding SelectedServer, Converter={StaticResource NullToHiddenConverter}}"/>
+        </Grid>
+    </Grid>
+</Window>
