@@ -10,48 +10,55 @@ namespace OpenDayZLauncher.Services
 {
     public class QueryService
     {
-        // Базовая реализация Source Query Protocol для получения модов
         public async Task<List<Mod>> GetServerModsAsync(string ip, int port)
         {
+            var mods = new List<Mod>();
             try
             {
                 using var client = new UdpClient();
-                client.Connect(ip, port);
                 client.Client.ReceiveTimeout = 3000;
+                client.Connect(ip, port);
 
-                // A2S_RULES запрос
-                byte[] request = { 0xFF, 0xFF, 0xFF, 0xFF, 0x56, 0xFF, 0xFF, 0xFF, 0xFF };
-                await client.SendAsync(request, request.Length);
+                // 1. A2S_RULES Request
+                byte[] header = { 0xFF, 0xFF, 0xFF, 0xFF, 0x56, 0xFF, 0xFF, 0xFF, 0xFF };
+                await client.SendAsync(header, header.Length);
 
-                var result = await client.ReceiveAsync();
-                byte[] response = result.Buffer;
+                var response = await client.ReceiveAsync();
+                if (response.Buffer[4] == 0x41) // Challenge response
+                {
+                    byte[] challengeRequest = new byte[9];
+                    Array.Copy(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0x56 }, challengeRequest, 5);
+                    Array.Copy(response.Buffer, 5, challengeRequest, 5, 4);
+                    await client.SendAsync(challengeRequest, challengeRequest.Length);
+                    response = await client.ReceiveAsync();
+                }
 
-                if (response.Length < 5 || response[4] != 0x41) return new List<Mod>();
+                if (response.Buffer[4] == 0x45) // Rules response
+                {
+                    string data = Encoding.UTF8.GetString(response.Buffer);
+                    // Простой парсинг modList или modNames из строки
+                    int modIdx = data.IndexOf("modList");
+                    if (modIdx == -1) modIdx = data.IndexOf("modNames");
 
-                // Если получили Challenge (0x41), нужно отправить запрос снова с этим токеном
-                byte[] challengeRequest = new byte[9];
-                Array.Copy(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0x56 }, challengeRequest, 5);
-                Array.Copy(response, 5, challengeRequest, 5, 4);
-
-                await client.SendAsync(challengeRequest, challengeRequest.Length);
-                result = await client.ReceiveAsync();
-                response = result.Buffer;
-
-                if (response.Length < 5 || response[4] != 0x45) return new List<Mod>();
-
-                return ParseRules(response);
+                    if (modIdx != -1)
+                    {
+                        string modStr = data.Substring(modIdx).Split('\0')[1];
+                        foreach (var m in modStr.Split(';'))
+                        {
+                            if (string.IsNullOrEmpty(m)) continue;
+                            var parts = m.Split(':');
+                            mods.Add(new Mod {
+                                Id = parts[0],
+                                Name = parts.Length > 1 ? parts[1] : $"Mod ({parts[0]})"
+                            });
+                        }
+                    }
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return new List<Mod>();
+                System.Diagnostics.Debug.WriteLine($"UDP Query Error: {ex.Message}");
             }
-        }
-
-        private List<Mod> ParseRules(byte[] data)
-        {
-            var mods = new List<Mod>();
-            // В реальности тут нужен полноценный парсер Key-Value пар из UDP пакета
-            // Для краткости пропустим детальную логику десериализации байтов
             return mods;
         }
     }

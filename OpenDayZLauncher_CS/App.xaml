@@ -1,0 +1,8 @@
+<Application x:Class="OpenDayZLauncher.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="Views/MainWindow.xaml">
+    <Application.Resources>
+         <!-- Конвертеры для интерфейса -->
+    </Application.Resources>
+</Application>
