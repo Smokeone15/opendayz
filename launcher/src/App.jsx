@@ -99,7 +99,7 @@ export default function App() {
     .filter(server => filterMap === 'All' || server.map.toLowerCase() === filterMap.toLowerCase())
     .filter(server => !filterFavoritesOnly || favorites.includes(server.connect));
 
-  const displayedServers = filteredServers.slice(0, 300);
+  const displayedServers = filteredServers.slice(0, 1000);
 
   const handlePlay = async () => {
     if (!selectedServer) return;
