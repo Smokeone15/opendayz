@@ -99,7 +99,7 @@ export default function App() {
     .filter(server => filterMap === 'All' || server.map.toLowerCase() === filterMap.toLowerCase())
     .filter(server => !filterFavoritesOnly || favorites.includes(server.connect));
 
-  const displayedServers = filteredServers.slice(0, 300);
+  const displayedServers = filteredServers.slice(0, 1000);
 
   const handlePlay = async () => {
     if (!selectedServer) return;
@@ -322,18 +322,18 @@ export default function App() {
                     </h3>
                     <div className="max-h-48 overflow-y-auto space-y-1.5 pr-2 pl-3 border-l border-zinc-800 custom-scrollbar">
                       {loadingMods ? (
-                        <span className="text-xs text-muted tracking-widest animate-pulse font-mono font-bold text-white">ЗАПРОС МОДОВ ПО UDP...</span>
+                        <span className="text-xs text-muted tracking-widest animate-pulse font-mono font-bold text-white">ЗАПРОС МОДОВ (UDP + STEAM API)...</span>
                       ) : !selectedServer.is_modded ? (
                         <p className="text-xs text-muted">Ванильный сервер (моды не требуются)</p>
                       ) : selectedServer.mods && selectedServer.mods.length > 0 ? (
-                        selectedServer.mods.map((mod) => (
-                          <div key={mod.id} className="flex justify-between items-center text-xs text-zinc-300">
+                        selectedServer.mods.map((mod, idx) => (
+                          <div key={`${mod.id}-${idx}`} className="flex justify-between items-center text-xs text-zinc-300">
                             <span className="font-mono">{mod.name}</span>
-                            <span className="text-[9px] text-zinc-600 font-mono">ID: {mod.id}</span>
+                            {mod.id && <span className="text-[9px] text-zinc-600 font-mono">ID: {mod.id}</span>}
                           </div>
                         ))
                       ) : (
-                        <p className="text-xs text-zinc-500 italic">Не удалось получить моды напрямую по UDP. Проверьте Брандмауэр Windows.</p>
+                        <p className="text-xs text-zinc-500 italic">Не удалось получить список модов. Попробуйте обновить или зайти напрямую.</p>
                       )}
                     </div>
                   </div>
