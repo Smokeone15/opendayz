@@ -10,7 +10,8 @@ namespace OpenDayZLauncher.Services
 {
     public class SteamApiService
     {
-        private const string ApiKey = "5309DC33296CE48D19BFF393F2B49230";
+        // Get it from: https://steamcommunity.com/dev/apikey
+        private const string ApiKey = "YOUR_STEAM_API_KEY_HERE";
         private readonly HttpClient _httpClient = new HttpClient();
 
         public async Task<List<Server>> FetchAllServersAsync()

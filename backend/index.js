@@ -9,8 +9,8 @@ app.use(compression());
 
 const PORT = 4000;
 
-// ТУТ ДОЛЖЕН БЫТЬ ВАШ STEAM API KEY
-const STEAM_API_KEY = "5309DC33296CE48D19BFF393F2B49230"; 
+// ТУТ ДОЛЖЕН БЫТЬ ВАШ STEAM API KEY (Get it from: https://steamcommunity.com/dev/apikey)
+const STEAM_API_KEY = process.env.STEAM_API_KEY || "YOUR_STEAM_API_KEY_HERE";
 
 // НАШИ ВЫДЕЛЕННЫЕ СЕРВЕРЫ
 const FEATURED_SERVERS = [
